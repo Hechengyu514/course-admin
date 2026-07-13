@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const client = axios.create({
-  baseURL: "http://localhost:8080/api",
+  baseURL: "https://course-admin-server-production.up.railway.app/api",
   timeout: 5000,
   headers: { "Content-Type": "application/json" },
 });
