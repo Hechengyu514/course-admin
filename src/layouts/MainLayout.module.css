@@ -1,0 +1,61 @@
+/* ———— 根容器 ———— */
+.root {
+  min-height: 100vh;
+}
+
+/* ———— 侧边栏 ———— */
+.sider {
+  border-right: 1px solid #f0f0f0 !important;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04);
+}
+
+.logo {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid #f0f0f0;
+  font-weight: 600;
+  font-size: 16px;
+  color: #1a1a1a;
+  letter-spacing: 2px;
+}
+
+.logoIcon {
+  margin-right: 8px;
+  color: #4e6ef2;
+}
+
+.menu {
+  border-right: 0 !important;
+  margin-top: 8px;
+}
+
+/* ———— 顶部栏 ———— */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  height: 64px;
+  padding: 0 32px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  z-index: 1;
+}
+
+.welcome {
+  font-size: 14px;
+  color: #666;
+}
+
+.welcomeName {
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+/* ———— 内容区 ———— */
+.content {
+  padding: 24px;
+  background: #f5f7fa;
+  min-height: calc(100vh - 64px);
+}
