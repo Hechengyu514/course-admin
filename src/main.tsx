@@ -9,6 +9,9 @@ async function bootstrap() {
   await worker.start({
     onUnhandledRequest: "bypass",
     quiet: true,
+    serviceWorker: {
+      url: import.meta.env.BASE_URL + "mockServiceWorker.js",
+    },
   });
 
   // 页面刷新时，从 localStorage 恢复共享数据快照到 data.ts 内存数组
