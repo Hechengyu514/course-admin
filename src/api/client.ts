@@ -27,7 +27,7 @@ client.interceptors.response.use(
       localStorage.removeItem("token");
       // 仅在非登录页时跳转，避免死循环
       if (window.location.pathname !== "/login") {
-        window.location.href = "/login";
+        window.location.href = import.meta.env.BASE_URL + "login";
       }
     }
 
