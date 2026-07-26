@@ -62,7 +62,9 @@ export function FormModal({
         form.resetFields();
       }
     }
-  }, [open, initialValues, form]);
+    // initialValues 仅在弹窗打开时读取，避免内联对象引用变化导致每帧重置
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   return (
     <Modal

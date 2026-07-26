@@ -22,3 +22,8 @@ export async function updateUserAPI(
 export async function deleteUserAPI(id: number): Promise<void> {
   await client.delete(`/users/${id}`);
 }
+
+export async function batchCreateUsersAPI(data: Partial<User>[]): Promise<User[]> {
+  const res = await client.post("/users/batch", data);
+  return res.data;
+}

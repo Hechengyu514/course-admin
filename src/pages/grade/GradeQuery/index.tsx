@@ -1,9 +1,11 @@
-import { Card, Table, Select, Typography } from "antd";
+import { Card, Table, Select, Typography, Button } from "antd";
+import { DownloadOutlined } from "@ant-design/icons";
 import { useEffect, useMemo, useState } from "react";
 import { useGradeStore } from "@/store/gradeStore";
 import { useUserStore } from "@/store/userStore";
 import { useCourseStore } from "@/store/courseStore";
 import { SEMESTERS } from "@/constants";
+import { exportGradesToExcel } from "@/utils/export";
 
 const { Text } = Typography;
 
@@ -11,7 +13,8 @@ const columns = [
   { title: "课程名", dataIndex: "courseName", key: "courseName" },
   { title: "学分", dataIndex: "credits", key: "credits" },
   { title: "百分制成绩", dataIndex: "score", key: "score" },
-  { title: "GPA", dataIndex: "gpa", key: "gpa" },
+  { title: "GPA", dataIndex: "gpa", key: "gpa",
+    render: (v: number) => v.toFixed(1) },
 ];
 
 /**
@@ -38,9 +41,10 @@ export default function GradeQuery() {
   }, [user, semester, fetchGrades]);
 
   const rows = useMemo(
-    () =>
-      grades
-        .filter((g) => g.studentId === user!.id)
+    () => {
+      if (!user) return [];
+      return grades
+        .filter((g) => g.studentId === user.id)
         .filter((g) => !semester || g.semester === semester)
         .map((g) => {
           const course = courses.find((c) => c.id === g.courseId);
@@ -52,7 +56,8 @@ export default function GradeQuery() {
             gpa: g.gpa,
           };
         })
-        .sort((a, b) => b.score - a.score),
+        .sort((a, b) => b.score - a.score);
+    },
     [grades, courses, user, semester],
   );
 
@@ -66,13 +71,21 @@ export default function GradeQuery() {
     <Card
       title="成绩查询"
       extra={
-        <Select
-          placeholder="筛选学期"
-          allowClear
-          onChange={setSemester}
-          options={SEMESTERS.map((s) => ({ value: s, label: s }))}
-          style={{ width: 180 }}
-        />
+        <div style={{ display: "flex", gap: 8 }}>
+          <Select
+            placeholder="筛选学期"
+            allowClear
+            onChange={setSemester}
+            options={SEMESTERS.map((s) => ({ value: s, label: s }))}
+            style={{ width: 180 }}
+          />
+          <Button
+            disabled={rows.length === 0}
+            onClick={() => exportGradesToExcel(rows, semester)}
+          >
+            <DownloadOutlined /> 导出 Excel
+          </Button>
+        </div>
       }
     >
       <Table

@@ -9,6 +9,7 @@ import { useUserStore } from "@/store/userStore";
  * - 无权限 → 跳转 /403
  * - 有权限 → 渲染子路由
  */
+
 interface Props {
   // 允许访问的角色列表
   roles: Role[];

@@ -8,19 +8,32 @@ import RouteGuard from "./RouteGuard";
 import MainLayout from "@/layouts/MainLayout";
 import Forbidden from "@/pages/error/Forbidden";
 import NotFound from "@/pages/error/NotFound";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 // ========== 路由懒加载 ==========
+const Dashboard = lazy(() => import("@/pages/dashboard/Dashboard"));
 const ScheduleView = lazy(() => import("@/pages/dashboard/ScheduleView"));
 const CourseManage = lazy(() => import("@/pages/course/CourseManage"));
 const CourseDetail = lazy(() => import("@/pages/course/CourseDetail"));
 const EnrollSystem = lazy(() => import("@/pages/course/EnrollSystem"));
-const StudentManage = lazy(() => import("@/pages/user/StudentManage"));
-const TeacherManage = lazy(() => import("@/pages/user/TeacherManage"));
+const UserManage = lazy(() => import("@/pages/user/UserManage"));
 const GradeInput = lazy(() => import("@/pages/grade/GradeInput"));
 const GradeQuery = lazy(() => import("@/pages/grade/GradeQuery"));
 const Logs = lazy(() => import("@/pages/log/Logs"));
+const Profile = lazy(() => import("@/pages/profile/Profile"));
+const AnnouncementManage = lazy(() => import("@/pages/announcement/AnnouncementManage"));
+const MyEvaluation = lazy(() => import("@/pages/evaluation/MyEvaluation"));
+const EvaluationStats = lazy(() => import("@/pages/evaluation/EvaluationStats"));
+const Settings = lazy(() => import("@/pages/admin/Settings"));
 
-// 懒加载包裹组件：显示 loading 动画等待 chunk 下载
+// 稳定包装组件
+function StudentUserManage() {
+  return <UserManage role="student" />;
+}
+function TeacherUserManage() {
+  return <UserManage role="teacher" />;
+}
+
 const Lazy = ({ Page }: { Page: ComponentType }) => (
   <Suspense
     fallback={
@@ -29,7 +42,9 @@ const Lazy = ({ Page }: { Page: ComponentType }) => (
       </div>
     }
   >
-    <Page />
+    <ErrorBoundary>
+      <Page />
+    </ErrorBoundary>
   </Suspense>
 );
 
@@ -41,6 +56,11 @@ interface RouteItem {
 }
 
 const routeConfig: RouteItem[] = [
+  {
+    path: "schedule",
+    element: <Lazy Page={ScheduleView} />,
+    roles: ["admin", "teacher", "student"],
+  },
   {
     path: "courses",
     element: <Lazy Page={CourseManage} />,
@@ -54,12 +74,12 @@ const routeConfig: RouteItem[] = [
   { path: "enroll", element: <Lazy Page={EnrollSystem} />, roles: ["student"] },
   {
     path: "students",
-    element: <Lazy Page={StudentManage} />,
+    element: <Lazy Page={StudentUserManage} />,
     roles: ["admin"],
   },
   {
     path: "teachers",
-    element: <Lazy Page={TeacherManage} />,
+    element: <Lazy Page={TeacherUserManage} />,
     roles: ["admin"],
   },
   {
@@ -73,6 +93,31 @@ const routeConfig: RouteItem[] = [
     roles: ["student"],
   },
   { path: "logs", element: <Lazy Page={Logs} />, roles: ["admin"] },
+  {
+    path: "announcements",
+    element: <Lazy Page={AnnouncementManage} />,
+    roles: ["admin", "teacher", "student"],
+  },
+  {
+    path: "profile",
+    element: <Lazy Page={Profile} />,
+    roles: ["admin", "teacher", "student"],
+  },
+  {
+    path: "my-evaluation",
+    element: <Lazy Page={MyEvaluation} />,
+    roles: ["student"],
+  },
+  {
+    path: "evaluation-stats",
+    element: <Lazy Page={EvaluationStats} />,
+    roles: ["admin", "teacher"],
+  },
+  {
+    path: "settings",
+    element: <Lazy Page={Settings} />,
+    roles: ["admin"],
+  },
 ];
 
 export default function AppRouter() {
@@ -86,7 +131,7 @@ export default function AppRouter() {
             index
             element={
               <RouteGuard roles={["admin", "teacher", "student"]}>
-                <Lazy Page={ScheduleView} />
+                <Lazy Page={Dashboard} />
               </RouteGuard>
             }
           />

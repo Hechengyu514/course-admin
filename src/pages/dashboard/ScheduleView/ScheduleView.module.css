@@ -1,7 +1,7 @@
 .grid {
   display: grid;
   grid-template-columns: 50px repeat(5, 1fr);
-  grid-template-rows: 36px repeat(8, 56px);
+  grid-template-rows: 36px repeat(8, 64px);
   gap: 2px;
   background: #e5e5e5;
   border: 1px solid #e5e5e5;
@@ -17,9 +17,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fafafa;
+  background: #f0f5ff;
   font-size: 13px;
-  color: #666;
+  font-weight: 600;
+  color: #4e6ef2;
 }
 
 .period {
@@ -31,25 +32,65 @@
   color: #999;
 }
 
+/* 每个 grid cell —— 一个容器 */
 .cell {
-  background: #e8f0fe;
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fb;
   border-radius: 3px;
-  padding: 4px 6px;
+  padding: 2px;
+  overflow: hidden;
+  gap: 2px;
+  position: relative;
+}
+
+/* 单元格内的单门课程块 */
+.courseBlock {
+  flex: 1 1 0;
+  min-height: 0;
+  background: #e8f0fe;
+  border-radius: 2px;
+  padding: 3px 5px;
   cursor: pointer;
   overflow: hidden;
-  font-size: 12px;
+  transition: background 0.15s;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
-.cell:hover {
+
+.courseBlock:hover {
   background: #d0e3fc;
 }
 
 .courseName {
   font-weight: 500;
   color: #1a1a1a;
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
 }
 
 .courseRoom {
-  font-size: 11px;
+  font-size: 10px;
   color: #888;
-  margin-top: 2px;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  line-height: 1.3;
+}
+
+/* 单元格内课程数量角标 */
+.courseCount {
+  position: absolute;
+  bottom: 2px;
+  right: 4px;
+  font-size: 10px;
+  color: #999;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 0 3px;
+  border-radius: 2px;
 }

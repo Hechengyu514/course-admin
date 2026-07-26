@@ -1,95 +1,104 @@
 # 教务管理系统
 
-高校教务管理系统，支持管理员、教师、学生三种角色，包含课程管理、选课系统、成绩录入、课表视图、系统日志等功能。
+高校教务管理系统，纯前端演示项目。支持**管理员、教师、学生**三种角色，包含课程管理、选课系统、成绩录入、课表视图、评教、系统日志等功能。
 
-**前端**：React 18 + TypeScript + Vite + Ant Design 6 + Zustand + React Router v6 + Axios
+**技术栈**：React 19 + TypeScript + Vite + Ant Design 6 + Zustand + React Router v7 + Recharts + MSW
 
-**后端**：Java 17 + Spring Boot 3 + Spring Security + JPA + H2 + JWT
+> 无需后端——所有 API 由 Mock Service Worker 在浏览器端拦截返回。
 
-## 功能概览
+## 演示账号
 
-### 三种角色
+| 角色   | 账号       | 密码       |
+| ------ | ---------- | ---------- |
+| 管理员 | `admin001` | `admin123` |
+| 教师   | `T1001`    | `123456`   |
+| 教师   | `T2001`    | `123456`   |
+| 学生   | `20241000` | `123456`   |
+| 学生   | `20241040` | `123456`   |
 
-| 角色 | 权限 |
-|---|---|
-| 管理员 | 全部权限：管理课程/学生/教师，查看日志 |
-| 教师 | 管理自己的课程、录入成绩、查看课表 |
-| 学生 | 选课/退课、查看课表、查询成绩 |
+## 功能
 
-### 页面（10 个）
+### 管理员
 
-| 页面 | 访问角色 | 说明 |
-|---|---|---|
-| 登录 | 全部 | 学号/工号 + 密码登录，JWT 认证 |
-| 课表视图 | 全部 | 周一~周五 × 1-8节 时间轴 Grid |
-| 课程管理 | admin/teacher | 表格 + 搜索筛选 + CRUD |
-| 课程详情 | 全部 | 课程信息 + 学生名单 |
-| 选课系统 | student | 卡片浏览 + 时间冲突检测 + 学分上限 |
-| 学生管理 | admin | 表格 + CRUD |
-| 教师管理 | admin | 表格 + CRUD |
-| 成绩录入 | teacher | 选课 → 录成绩 → 自动算 GPA |
-| 成绩查询 | student | 按学期查成绩 + 平均 GPA |
-| 系统日志 | admin | 虚拟列表 50000 条日志 |
+- **仪表盘** — 学生/教师总数、开课数、选课人次统计卡片 + 课程分类饼图 + 院系人数柱状图 + 成绩分布
+- **课程管理** — 搜索/筛选、CRUD、排课冲突检测、撤销删除
+- **学生/教师管理** — CRUD + Excel 批量导入
+- **课表视图** — 按教师或教室查看课表
+- **评教统计** — 查看任意教师的评教结果
+- **通知公告** — 发布/编辑/删除公告
+- **系统日志** — 虚拟列表渲染 50000 条日志
+- **系统设置** — 学分上限、选课时段
+
+### 教师
+
+- **仪表盘** — 本学期授课、学生数、评教均分
+- **课程管理** — 查看自己的课程（只读）
+- **成绩录入** — 选择课程 → 录入百分制 → 自动换算 GPA + 成绩分布图
+- **课表视图** — 查看自己的授课安排
+- **评教统计** — 查看自己的评教结果
+
+### 学生
+
+- **仪表盘** — 已选课程、学分进度、累计 GPA、今日课程
+- **选课系统** — 卡片浏览 + 时间冲突/学分上限/课程已满 三重校验 + 选课时段窗口控制
+- **成绩查询** — 按学期筛选 + 学期平均 GPA + Excel 导出
+- **课表视图** — 查看自己的上课安排
+- **学生评教** — 对已选课程打分 + 文字评价
 
 ## 技术亮点
 
-- **通用表单组件** `FormModal` — 配置驱动，新增/编辑复用，代码量减少 40%
-- **手写虚拟列表** `VirtualList` — 只渲染可见行，50000 条数据 DOM 仅 ~15 行
-- **三层权限控制** — 路由守卫 + 菜单过滤 + 按钮条件渲染，集中式 `RouteGuard`
-- **路由懒加载** — `React.lazy` + `Suspense` 拆 9 个 chunk
-- **选课业务逻辑** — 时间冲突检测 + 学分上限校验 + GPA 5.0 制自动换算
-- **JWT 认证** — Spring Security + jjwt，Axios 拦截器自动带 token
+- **Mock Service Worker** — 浏览器端拦截 API，277 用户、29 门课程、50000 条日志全 Mock
+- **API 权限校验** — `requireRole` 在 handler 层校验角色，非前端路由守卫的单层防护
+- **乐观更新 + 回滚** — 选课/退课先改 UI 再调 API，失败自动回滚
+- **通用 FormModal** — 配置驱动渲染，全项目新增/编辑弹窗共用一个组件
+- **手写虚拟列表** — 只渲染可见行，`translateY` 定位，50000 条数据仅 ~15 个 DOM 节点
+- **路由懒加载** — `React.lazy` + `Suspense` + `ErrorBoundary`，15 个页面按需加载
+- **排课冲突检测** — 教师时间冲突 + 教室占用冲突，同一天 + 时间段重叠 + 教学周交集 三维判断
+- **竞态防护** — `useRef` 标记最新请求，快速切换课程时防止旧数据覆盖
+- **共享数据快照** — localStorage 持久化，多用户切换 + 刷新不丢修改
 - **搜索防抖** — 300ms debounce 减少不必要的渲染
-- **状态持久化** — Zustand persist，刷新不丢
 
 ## 项目结构
 
 ```
-course-admin/
-├── src/
-│   ├── api/              # Axios 封装 + 接口层
-│   ├── components/       # FormModal、VirtualList
-│   ├── constants/        # 学期、分类等常量
-│   ├── layouts/          # MainLayout
-│   ├── pages/
-│   │   ├── auth/         # 登录
-│   │   ├── course/       # 课程管理、选课、详情
-│   │   ├── dashboard/    # 课表视图
-│   │   ├── error/        # 403 / 404
-│   │   ├── grade/        # 成绩录入、查询
-│   │   ├── log/          # 系统日志
-│   │   └── user/         # 学生/教师管理
-│   ├── router/           # 路由 + RouteGuard
-│   ├── store/            # Zustand 状态管理
-│   ├── types/            # TypeScript 类型
-│   └── utils/            # 工具函数
-└── course-admin-server/  # 后端 Spring Boot 项目
+src/
+├── api/               # Axios 封装 + 接口层（8 个模块）
+├── components/        # ErrorBoundary / FormModal / ImportModal / VirtualList
+├── constants/         # 学期、分类、上课时间预设
+├── layouts/           # MainLayout — 菜单 + 顶部栏 + 内容区
+├── mocks/             # MSW 种子数据 + 8 组 handler
+│   └── handlers/      # auth / courses / users / grades / announcements / evaluations / logs / classes
+├── pages/
+│   ├── admin/         # 系统设置
+│   ├── announcement/  # 通知公告
+│   ├── auth/          # 登录 + 忘记密码
+│   ├── course/        # 课程管理 / 课程详情 / 选课系统
+│   ├── dashboard/     # 仪表盘 / 课表视图
+│   ├── error/         # 403 / 404
+│   ├── evaluation/    # 学生评教 / 评教统计
+│   ├── grade/         # 成绩录入 / 成绩查询
+│   ├── log/           # 系统日志
+│   ├── profile/       # 个人中心
+│   └── user/          # 学生/教师管理
+├── router/            # 路由表 + RouteGuard
+├── store/             # Zustand 状态管理（10 个 store）
+├── types/             # TypeScript 类型定义
+└── utils/             # 冲突检测 / 防抖 / Excel 导出 / GPA 换算
 ```
 
 ## 快速开始
 
-### 前端
-
 ```bash
-cd course-admin
-pnpm install
-pnpm dev          # http://localhost:5173
+npm install
+npm run dev          # http://localhost:5173
 ```
 
-### 后端
+构建：
 
-用 IntelliJ IDEA 打开 `course-admin-server`，运行 `CourseAdminServerApplication`。
-
-### 测试账号
-
-| 角色 | 账号 | 密码 |
-|---|---|---|
-| 管理员 | 1 | admin123 |
-| 李老师 | 2 | 123456 |
-| 王老师 | 3 | 123456 |
-| 赵同学 | 4 | 123456 |
-
-> 账号 1~8，服务启动时自动初始化数据。
+```bash
+npm run build        # 输出到 dist/
+npm run preview      # 本地预览构建产物
+```
 
 ## License
 

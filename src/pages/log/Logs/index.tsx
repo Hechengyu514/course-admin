@@ -21,7 +21,9 @@ export default function Logs() {
   const debouncedSetUserName = useMemo(() => debounce((v: string) => setUserName(v), 300), []);
 
   useEffect(() => {
-    getLogsAPI().then(setLogs);
+    getLogsAPI()
+      .then(setLogs)
+      .catch(() => setLogs([]));
   }, []);
 
   const filteredLogs = useMemo(

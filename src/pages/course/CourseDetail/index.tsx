@@ -7,7 +7,8 @@ import { formatTimeSlots } from "@/utils/formatTimeSlots";
 
 const studentColumns = [
   { title: "姓名", dataIndex: "name", key: "name" },
-  { title: "学号", dataIndex: "id", key: "id" },
+  { title: "学号", dataIndex: "userId", key: "userId" },
+  { title: "班级", dataIndex: "className", key: "className" },
 ];
 
 /**
@@ -31,8 +32,11 @@ export default function CourseDetail() {
   }, [fetchCourses]);
 
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    // 仅管理员和教师需要加载用户列表（用于显示学生名单）
+    if (currentUser && currentUser.role !== "student") {
+      fetchUsers();
+    }
+  }, [fetchUsers, currentUser]);
 
   const enrolledStudents = useMemo(
     () => (course ? users.filter((u) => course.studentIds.includes(u.id)) : []),
@@ -59,13 +63,20 @@ export default function CourseDetail() {
           <Descriptions.Item label="上课时间">
             {formatTimeSlots(course.timeSlots)}
           </Descriptions.Item>
-          <Descriptions.Item label="选课人数" span={2}>
+          <Descriptions.Item label="教学周">
+            {(() => {
+              const weeks = course.timeSlots.map((s) => `${s.startWeek}-${s.endWeek}周`);
+              return [...new Set(weeks)].join("、");
+            })()}
+          </Descriptions.Item>
+          <Descriptions.Item label="选课人数">
             {course.enrolledCount} / {course.capacity} 人
           </Descriptions.Item>
         </Descriptions>
       </Card>
 
-      {currentUser?.role !== "student" && (
+      {/* 仅管理员和该课程的授课教师可查看学生名单 */}
+      {(currentUser?.role === "admin" || course.teacherId === currentUser?.id) && (
         <Card title="已选学生名单">
           <Table
             columns={studentColumns}

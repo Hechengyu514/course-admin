@@ -20,6 +20,7 @@ interface CourseState {
   deleteCourse: (courseId: number) => Promise<void>;
   enrollCourse: (courseId: number, studentId: number) => Promise<void>;
   dropCourse: (courseId: number, studentId: number) => Promise<void>;
+  restoreCourse: (course: Course) => Promise<void>;
 }
 
 export const useCourseStore = create<CourseState>()(
@@ -52,7 +53,7 @@ export const useCourseStore = create<CourseState>()(
       },
 
       enrollCourse: async (courseId, studentId) => {
-        await enrollAPI(courseId, studentId);
+        // 先乐观更新 UI，失败时回滚
         set((state) => ({
           courses: state.courses.map((c) =>
             c.id === courseId
@@ -64,10 +65,26 @@ export const useCourseStore = create<CourseState>()(
               : c,
           ),
         }));
+        try {
+          await enrollAPI(courseId, studentId);
+        } catch {
+          // API 失败，回滚乐观更新
+          set((state) => ({
+            courses: state.courses.map((c) =>
+              c.id === courseId
+                ? {
+                    ...c,
+                    studentIds: c.studentIds.filter((id) => id !== studentId),
+                    enrolledCount: c.enrolledCount - 1,
+                  }
+                : c,
+            ),
+          }));
+          throw new Error("选课失败");
+        }
       },
 
       dropCourse: async (courseId, studentId) => {
-        await dropAPI(courseId, studentId);
         set((state) => ({
           courses: state.courses.map((c) =>
             c.id === courseId
@@ -78,6 +95,31 @@ export const useCourseStore = create<CourseState>()(
                 }
               : c,
           ),
+        }));
+        try {
+          await dropAPI(courseId, studentId);
+        } catch {
+          set((state) => ({
+            courses: state.courses.map((c) =>
+              c.id === courseId
+                ? {
+                    ...c,
+                    studentIds: [...c.studentIds, studentId],
+                    enrolledCount: c.enrolledCount + 1,
+                  }
+                : c,
+            ),
+          }));
+          throw new Error("退课失败");
+        }
+      },
+
+      restoreCourse: async (course) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id, ...courseData } = course;
+        const restored = await createCourseAPI(courseData);
+        set((state) => ({
+          courses: [...state.courses, restored],
         }));
       },
     }),
