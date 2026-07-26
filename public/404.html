@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>教务管理系统</title>
+  <script>
+    // GitHub Pages SPA fallback: 将 404 路径转发到 index.html
+    sessionStorage.redirect = location.pathname + location.search + location.hash;
+    location.replace('/course-admin/' + sessionStorage.redirect.replace('/course-admin/', ''));
+  </script>
+</head>
+<body></body>
+</html>
